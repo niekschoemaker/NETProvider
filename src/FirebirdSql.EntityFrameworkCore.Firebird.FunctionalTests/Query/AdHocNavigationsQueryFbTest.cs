@@ -30,19 +30,19 @@ public class AdHocNavigationsQueryFbTest : AdHocNavigationsQueryRelationalTestBa
 {
 	protected override ITestStoreFactory TestStoreFactory => FbTestStoreFactory.Instance;
 
-	[NotSupportedOnFirebirdFact]
+	[Fact]
 	public override Task Let_multiple_references_with_reference_to_outer()
 	{
 		return base.Let_multiple_references_with_reference_to_outer();
 	}
 
-	[NotSupportedOnFirebirdFact]
+	[Fact]
 	public override Task Projection_with_multiple_includes_and_subquery_with_set_operation()
 	{
 		return base.Projection_with_multiple_includes_and_subquery_with_set_operation();
 	}
 
-	[NotSupportedOnFirebirdFact]
+	[Fact]
 	public override Task SelectMany_and_collection_in_projection_in_FirstOrDefault()
 	{
 		return base.SelectMany_and_collection_in_projection_in_FirstOrDefault();

@@ -51,7 +51,7 @@ public class UdfDbFunctionFbTests : UdfDbFunctionTestBase<UdfDbFunctionFbTests.F
 		base.Udf_with_argument_being_comparison_of_nullable_columns();
 	}
 
-	[NotSupportedOnFirebirdFact]
+	[Fact]
 	public override void QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections()
 	{
 		base.QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections();
@@ -63,13 +63,13 @@ public class UdfDbFunctionFbTests : UdfDbFunctionTestBase<UdfDbFunctionFbTests.F
 		base.QF_CrossApply_Correlated_Select_Result();
 	}
 
-	[NotSupportedOnFirebirdFact]
+	[Fact]
 	public override void QF_Select_Correlated_Subquery_In_Anonymous()
 	{
 		base.QF_Select_Correlated_Subquery_In_Anonymous();
 	}
 
-	[NotSupportedOnFirebirdFact]
+	[Fact]
 	public override void QF_Correlated_Func_Call_With_Navigation()
 	{
 		base.QF_Correlated_Func_Call_With_Navigation();
