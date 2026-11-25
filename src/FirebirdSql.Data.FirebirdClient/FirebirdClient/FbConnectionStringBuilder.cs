@@ -319,6 +319,16 @@ public class FbConnectionStringBuilder : DbConnectionStringBuilder
 		set { SetValue(Common.ConnectionString.DefaultKeyParallelWorkers, value); }
 	}
 
+	[Category("Advanced")]
+	[DisplayName("Max Inline Blob Size")]
+	[Description("Maximum size of blobs sent inline with fetched rows (Firebird 5.0.3+). Zero disables inline blobs.")]
+	[DefaultValue(Common.ConnectionString.DefaultValueMaxInlineBlobSize)]
+	public int MaxInlineBlobSize
+	{
+		get { return Common.ConnectionString.GetInt32(GetKey(Common.ConnectionString.DefaultKeyMaxInlineBlobSize), base.TryGetValue, Common.ConnectionString.DefaultValueMaxInlineBlobSize); }
+		set { SetValue(Common.ConnectionString.DefaultKeyMaxInlineBlobSize, value); }
+	}
+
 	#endregion
 
 	#region Constructors

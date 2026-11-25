@@ -826,6 +826,15 @@ internal class GdsDatabase : DatabaseBase
 		return response;
 	}
 
+	public virtual bool TryTakeInlineBlob(int transactionHandle, long blobId, out byte[] data)
+	{
+		data = null;
+		return false;
+	}
+
+	public virtual void ReleaseInlineBlobs(int transactionHandle)
+	{ }
+
 	public void SafeFinishFetching(int numberOfResponses)
 	{
 		while (numberOfResponses > 0)

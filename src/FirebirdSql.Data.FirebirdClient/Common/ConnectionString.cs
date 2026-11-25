@@ -58,6 +58,7 @@ internal sealed class ConnectionString
 	internal const string DefaultValueApplicationName = "";
 	internal const int DefaultValueCommandTimeout = 0;
 	internal const int DefaultValueParallelWorkers = 0;
+	internal const int DefaultValueMaxInlineBlobSize = 65535;
 
 	internal const string DefaultKeyUserId = "user id";
 	internal const string DefaultKeyPortNumber = "port number";
@@ -88,6 +89,7 @@ internal sealed class ConnectionString
 	internal const string DefaultKeyApplicationName = "application name";
 	internal const string DefaultKeyCommandTimeout = "command timeout";
 	internal const string DefaultKeyParallelWorkers = "parallel workers";
+	internal const string DefaultKeyMaxInlineBlobSize = "max inline blob size";
 	#endregion
 
 	#region Static Fields
@@ -163,6 +165,8 @@ internal sealed class ConnectionString
 			{ DefaultKeyParallelWorkers, DefaultKeyParallelWorkers },
 			{ "parallelworkers", DefaultKeyParallelWorkers },
 			{ "parallel", DefaultKeyParallelWorkers },
+			{ DefaultKeyMaxInlineBlobSize, DefaultKeyMaxInlineBlobSize },
+			{ "maxinlineblobsize", DefaultKeyMaxInlineBlobSize },
 		};
 
 	internal static readonly IDictionary<string, object> DefaultValues = new Dictionary<string, object>(StringComparer.Ordinal)
@@ -196,6 +200,7 @@ internal sealed class ConnectionString
 			{ DefaultKeyApplicationName, DefaultValueApplicationName },
 			{ DefaultKeyCommandTimeout, DefaultValueCommandTimeout },
 			{ DefaultKeyParallelWorkers, DefaultValueParallelWorkers },
+			{ DefaultKeyMaxInlineBlobSize, DefaultValueMaxInlineBlobSize },
 		};
 
 	#endregion
@@ -237,6 +242,7 @@ internal sealed class ConnectionString
 	public string ApplicationName => GetString(DefaultKeyApplicationName, _options.TryGetValue);
 	public int CommandTimeout => GetInt32(DefaultKeyCommandTimeout, _options.TryGetValue);
 	public int ParallelWorkers => GetInt32(DefaultKeyParallelWorkers, _options.TryGetValue);
+	public int MaxInlineBlobSize => GetInt32(DefaultKeyMaxInlineBlobSize, _options.TryGetValue);
 
 	#endregion
 
@@ -301,6 +307,10 @@ internal sealed class ConnectionString
 		if (ParallelWorkers < 0)
 		{
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "'Parallel Workers' value of {0} is not valid.{1}The value should be an integer >= 0.", ParallelWorkers, Environment.NewLine));
+		}
+		if (MaxInlineBlobSize < 0 || MaxInlineBlobSize > 65535)
+		{
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "'Max Inline Blob Size' value of {0} is not valid.{1}The value should be an integer >= 0 and <= 65535.", MaxInlineBlobSize, Environment.NewLine));
 		}
 	}
 

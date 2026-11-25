@@ -73,6 +73,9 @@ internal static class IscCodes
 	public const int PROTOCOL_VERSION13 = FB_PROTOCOL_FLAG | 13;
 	public const int PROTOCOL_VERSION15 = FB_PROTOCOL_FLAG | 15;
 	public const int PROTOCOL_VERSION16 = FB_PROTOCOL_FLAG | 16;
+	public const int PROTOCOL_VERSION17 = FB_PROTOCOL_FLAG | 17;
+	public const int PROTOCOL_VERSION18 = FB_PROTOCOL_FLAG | 18;
+	public const int PROTOCOL_VERSION19 = FB_PROTOCOL_FLAG | 19;
 
 	public const int p_cnct_min_type = 0;
 
@@ -236,6 +239,8 @@ internal static class IscCodes
 	public const int op_repl_req = 108;
 
 	public const int op_batch_cancel = 109;
+
+	public const int op_inline_blob = 114;
 
 	#endregion
 

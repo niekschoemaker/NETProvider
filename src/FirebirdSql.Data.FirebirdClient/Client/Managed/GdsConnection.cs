@@ -140,7 +140,7 @@ internal sealed class GdsConnection
 			Xdr.Write(database);
 
 			var protocols = ProtocolsSupported.Get(Compression);
-			Xdr.Write(protocols.Count());
+			Xdr.Write(protocols.Count);
 
 			AuthBlock = new AuthBlock(this, User, Password, WireCrypt);
 
@@ -399,8 +399,7 @@ internal sealed class GdsConnection
 					Xdr.ReadBuffer());
 
 			case IscCodes.op_crypt_key_callback:
-				if (ProtocolVersion == IscCodes.PROTOCOL_VERSION15
-					|| ProtocolVersion == IscCodes.PROTOCOL_VERSION16)
+				if (ProtocolVersion >= IscCodes.PROTOCOL_VERSION15)
 				{
 					return new Version15.CryptKeyCallbackResponse(
 						Xdr.ReadBuffer(),
@@ -482,8 +481,7 @@ internal sealed class GdsConnection
 					await Xdr.ReadBufferAsync(cancellationToken).ConfigureAwait(false));
 
 			case IscCodes.op_crypt_key_callback:
-				if (ProtocolVersion == IscCodes.PROTOCOL_VERSION15
-					|| ProtocolVersion == IscCodes.PROTOCOL_VERSION16)
+				if (ProtocolVersion >= IscCodes.PROTOCOL_VERSION15)
 				{
 					return new Version15.CryptKeyCallbackResponse(
 						await Xdr.ReadBufferAsync(cancellationToken).ConfigureAwait(false),

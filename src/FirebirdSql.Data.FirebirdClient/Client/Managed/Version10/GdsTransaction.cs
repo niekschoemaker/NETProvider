@@ -154,6 +154,7 @@ internal class GdsTransaction : TransactionBase
 			_database.Xdr.Flush();
 
 			_database.ReadResponse();
+			_database.ReleaseInlineBlobs(_handle);
 
 			_database.TransactionCount--;
 
@@ -177,6 +178,7 @@ internal class GdsTransaction : TransactionBase
 			await _database.Xdr.FlushAsync(cancellationToken).ConfigureAwait(false);
 
 			await _database.ReadResponseAsync(cancellationToken).ConfigureAwait(false);
+			_database.ReleaseInlineBlobs(_handle);
 
 			_database.TransactionCount--;
 
@@ -201,6 +203,7 @@ internal class GdsTransaction : TransactionBase
 			_database.Xdr.Flush();
 
 			_database.ReadResponse();
+			_database.ReleaseInlineBlobs(_handle);
 
 			_database.TransactionCount--;
 
@@ -224,6 +227,7 @@ internal class GdsTransaction : TransactionBase
 			await _database.Xdr.FlushAsync(cancellationToken).ConfigureAwait(false);
 
 			await _database.ReadResponseAsync(cancellationToken).ConfigureAwait(false);
+			_database.ReleaseInlineBlobs(_handle);
 
 			_database.TransactionCount--;
 

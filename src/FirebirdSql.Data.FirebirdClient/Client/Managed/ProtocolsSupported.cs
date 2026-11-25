@@ -44,6 +44,9 @@ internal static class ProtocolsSupported
 				new Protocol(IscCodes.PROTOCOL_VERSION13, IscCodes.ptype_lazy_send | (compression ? IscCodes.pflag_compress : 0)),
 				new Protocol(IscCodes.PROTOCOL_VERSION15, IscCodes.ptype_lazy_send | (compression ? IscCodes.pflag_compress : 0)),
 				new Protocol(IscCodes.PROTOCOL_VERSION16, IscCodes.ptype_lazy_send | (compression ? IscCodes.pflag_compress : 0)),
+				new Protocol(IscCodes.PROTOCOL_VERSION17, IscCodes.ptype_lazy_send | (compression ? IscCodes.pflag_compress : 0)),
+				new Protocol(IscCodes.PROTOCOL_VERSION18, IscCodes.ptype_lazy_send | (compression ? IscCodes.pflag_compress : 0)),
+				new Protocol(IscCodes.PROTOCOL_VERSION19, IscCodes.ptype_lazy_send | (compression ? IscCodes.pflag_compress : 0)),
 			};
 	}
 }

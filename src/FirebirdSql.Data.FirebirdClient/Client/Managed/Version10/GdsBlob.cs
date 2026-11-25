@@ -32,6 +32,8 @@ internal sealed class GdsBlob : BlobBase
 
 	private readonly GdsDatabase _database;
 	private int _blobHandle;
+	// Blob content received inline (protocol 19+); when set, no server-side blob is open.
+	private byte[] _inlineContent;
 
 	#endregion
 
@@ -96,6 +98,9 @@ internal sealed class GdsBlob : BlobBase
 
 	public override void Open()
 	{
+		if (TryOpenInline())
+			return;
+
 		try
 		{
 			CreateOrOpen(IscCodes.op_open_blob, null);
@@ -107,6 +112,9 @@ internal sealed class GdsBlob : BlobBase
 	}
 	public override async ValueTask OpenAsync(CancellationToken cancellationToken = default)
 	{
+		if (TryOpenInline())
+			return;
+
 		try
 		{
 			await CreateOrOpenAsync(IscCodes.op_open_blob, null, cancellationToken).ConfigureAwait(false);
@@ -123,6 +131,9 @@ internal sealed class GdsBlob : BlobBase
 		{
 			if (!IsOpen)
 				Open();
+
+			if (_inlineContent != null)
+				return _inlineContent.Length;
 
 			var bufferLength = 20;
 			var buffer = new byte[bufferLength];
@@ -164,6 +175,9 @@ internal sealed class GdsBlob : BlobBase
 			if (!IsOpen)
 				await OpenAsync(cancellationToken).ConfigureAwait(false);
 
+			if (_inlineContent != null)
+				return _inlineContent.Length;
+
 			var bufferLength = 20;
 			var buffer = new byte[bufferLength];
 
@@ -199,6 +213,12 @@ internal sealed class GdsBlob : BlobBase
 
 	public override void GetSegment(Stream stream)
 	{
+		if (_inlineContent != null)
+		{
+			stream.Write(TakeInlineContent());
+			return;
+		}
+
 		var requested = SegmentSize;
 
 		try
@@ -248,6 +268,12 @@ internal sealed class GdsBlob : BlobBase
 	}
 	public override async ValueTask GetSegmentAsync(Stream stream, CancellationToken cancellationToken = default)
 	{
+		if (_inlineContent != null)
+		{
+			await stream.WriteAsync(TakeInlineContent(), cancellationToken).ConfigureAwait(false);
+			return;
+		}
+
 		var requested = SegmentSize;
 
 		try
@@ -298,6 +324,9 @@ internal sealed class GdsBlob : BlobBase
 
 	public override byte[] GetSegment()
 	{
+		if (_inlineContent != null)
+			return TakeInlineContent();
+
 		var requested = SegmentSize;
 
 		try
@@ -354,6 +383,9 @@ internal sealed class GdsBlob : BlobBase
 	}
 	public override async ValueTask<byte[]> GetSegmentAsync(CancellationToken cancellationToken = default)
 	{
+		if (_inlineContent != null)
+			return TakeInlineContent();
+
 		var requested = SegmentSize;
 
 		try
@@ -444,6 +476,14 @@ internal sealed class GdsBlob : BlobBase
 
 	public override void Seek(int offset, int seekMode)
 	{
+		if (_inlineContent != null)
+		{
+			// seeking is done by the server, so switch to a regular server-side blob
+			_inlineContent = null;
+			RblRemoveValue(IscCodes.RBL_eof_pending);
+			CreateOrOpen(IscCodes.op_open_blob, null);
+		}
+
 		try
 		{
 			_database.Xdr.Write(IscCodes.op_seek_blob);
@@ -463,6 +503,14 @@ internal sealed class GdsBlob : BlobBase
 	}
 	public override async ValueTask SeekAsync(int offset, int seekMode, CancellationToken cancellationToken = default)
 	{
+		if (_inlineContent != null)
+		{
+			// seeking is done by the server, so switch to a regular server-side blob
+			_inlineContent = null;
+			RblRemoveValue(IscCodes.RBL_eof_pending);
+			await CreateOrOpenAsync(IscCodes.op_open_blob, null, cancellationToken).ConfigureAwait(false);
+		}
+
 		try
 		{
 			await _database.Xdr.WriteAsync(IscCodes.op_seek_blob, cancellationToken).ConfigureAwait(false);
@@ -483,25 +531,70 @@ internal sealed class GdsBlob : BlobBase
 
 	public override void Close()
 	{
+		if (_inlineContent != null)
+			return;
 		_database.ReleaseObject(IscCodes.op_close_blob, _blobHandle);
 	}
 	public override ValueTask CloseAsync(CancellationToken cancellationToken = default)
 	{
+		if (_inlineContent != null)
+			return ValueTask.CompletedTask;
 		return _database.ReleaseObjectAsync(IscCodes.op_close_blob, _blobHandle, cancellationToken);
 	}
 
 	public override void Cancel()
 	{
+		if (_inlineContent != null)
+			return;
 		_database.ReleaseObject(IscCodes.op_cancel_blob, _blobHandle);
 	}
 	public override ValueTask CancelAsync(CancellationToken cancellationToken = default)
 	{
+		if (_inlineContent != null)
+			return ValueTask.CompletedTask;
 		return _database.ReleaseObjectAsync(IscCodes.op_cancel_blob, _blobHandle, cancellationToken);
 	}
 
 	#endregion
 
 	#region Private API Methods
+
+	private bool TryOpenInline()
+	{
+		if (_transaction == null || !_database.TryTakeInlineBlob(_transaction.Handle, _blobId, out var data))
+			return false;
+		_inlineContent = DecodeSegments(data);
+		_isOpen = true;
+		return true;
+	}
+
+	private byte[] TakeInlineContent()
+	{
+		if (EOF)
+			return Array.Empty<byte>();
+		RblAddValue(IscCodes.RBL_eof_pending);
+		return _inlineContent;
+	}
+
+	// Inline blob data is a sequence of segments, each prefixed by its 2-byte little-endian length.
+	internal static byte[] DecodeSegments(byte[] data)
+	{
+		var length = 0;
+		for (var pos = 0; pos < data.Length; pos += 2 + data[pos] + (data[pos + 1] << 8))
+		{
+			length += data[pos] + (data[pos + 1] << 8);
+		}
+		var result = new byte[length];
+		var offset = 0;
+		for (var pos = 0; pos < data.Length;)
+		{
+			var segmentLength = data[pos] + (data[pos + 1] << 8);
+			Buffer.BlockCopy(data, pos + 2, result, offset, segmentLength);
+			offset += segmentLength;
+			pos += 2 + segmentLength;
+		}
+		return result;
+	}
 
 	private void CreateOrOpen(int op, BlobParameterBuffer bpb)
 	{
