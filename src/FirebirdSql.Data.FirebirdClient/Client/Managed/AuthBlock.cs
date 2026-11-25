@@ -245,9 +245,7 @@ sealed class AuthBlock
 
 	public void WireCryptValidate(int protocolVersion)
 	{
-		var validProtocolVersion = protocolVersion == IscCodes.PROTOCOL_VERSION13
-			|| protocolVersion == IscCodes.PROTOCOL_VERSION15
-			|| protocolVersion == IscCodes.PROTOCOL_VERSION16;
+		var validProtocolVersion = protocolVersion >= IscCodes.PROTOCOL_VERSION13;
 		if (validProtocolVersion && WireCrypt == WireCryptOption.Required && IsAuthenticated && !WireCryptInitialized)
 		{
 			throw IscException.ForErrorCode(IscCodes.isc_wirecrypt_incompatible);

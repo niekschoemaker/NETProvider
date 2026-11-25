@@ -82,7 +82,9 @@ internal static class ClientFactory
 		}
 		return connection.ProtocolVersion switch
 		{
-			IscCodes.PROTOCOL_VERSION16 => new Managed.Version16.GdsDatabase(connection),
+			IscCodes.PROTOCOL_VERSION19 => new Managed.Version19.GdsDatabase(connection, options.MaxInlineBlobSize),
+			IscCodes.PROTOCOL_VERSION18 => new Managed.Version18.GdsDatabase(connection),
+			IscCodes.PROTOCOL_VERSION17 or IscCodes.PROTOCOL_VERSION16 => new Managed.Version16.GdsDatabase(connection),
 			IscCodes.PROTOCOL_VERSION15 => new Managed.Version15.GdsDatabase(connection),
 			IscCodes.PROTOCOL_VERSION13 => new Managed.Version13.GdsDatabase(connection),
 			IscCodes.PROTOCOL_VERSION12 => new Managed.Version12.GdsDatabase(connection),
@@ -108,7 +110,9 @@ internal static class ClientFactory
 		}
 		return connection.ProtocolVersion switch
 		{
-			IscCodes.PROTOCOL_VERSION16 => new Managed.Version16.GdsDatabase(connection),
+			IscCodes.PROTOCOL_VERSION19 => new Managed.Version19.GdsDatabase(connection, options.MaxInlineBlobSize),
+			IscCodes.PROTOCOL_VERSION18 => new Managed.Version18.GdsDatabase(connection),
+			IscCodes.PROTOCOL_VERSION17 or IscCodes.PROTOCOL_VERSION16 => new Managed.Version16.GdsDatabase(connection),
 			IscCodes.PROTOCOL_VERSION15 => new Managed.Version15.GdsDatabase(connection),
 			IscCodes.PROTOCOL_VERSION13 => new Managed.Version13.GdsDatabase(connection),
 			IscCodes.PROTOCOL_VERSION12 => new Managed.Version12.GdsDatabase(connection),
@@ -148,7 +152,7 @@ internal static class ClientFactory
 		}
 		return connection.ProtocolVersion switch
 		{
-			IscCodes.PROTOCOL_VERSION16 => new Managed.Version16.GdsServiceManager(connection),
+			IscCodes.PROTOCOL_VERSION19 or IscCodes.PROTOCOL_VERSION18 or IscCodes.PROTOCOL_VERSION17 or IscCodes.PROTOCOL_VERSION16 => new Managed.Version16.GdsServiceManager(connection),
 			IscCodes.PROTOCOL_VERSION15 => new Managed.Version15.GdsServiceManager(connection),
 			IscCodes.PROTOCOL_VERSION13 => new Managed.Version13.GdsServiceManager(connection),
 			IscCodes.PROTOCOL_VERSION12 => new Managed.Version12.GdsServiceManager(connection),
@@ -174,7 +178,7 @@ internal static class ClientFactory
 		}
 		return connection.ProtocolVersion switch
 		{
-			IscCodes.PROTOCOL_VERSION16 => new Managed.Version16.GdsServiceManager(connection),
+			IscCodes.PROTOCOL_VERSION19 or IscCodes.PROTOCOL_VERSION18 or IscCodes.PROTOCOL_VERSION17 or IscCodes.PROTOCOL_VERSION16 => new Managed.Version16.GdsServiceManager(connection),
 			IscCodes.PROTOCOL_VERSION15 => new Managed.Version15.GdsServiceManager(connection),
 			IscCodes.PROTOCOL_VERSION13 => new Managed.Version13.GdsServiceManager(connection),
 			IscCodes.PROTOCOL_VERSION12 => new Managed.Version12.GdsServiceManager(connection),
